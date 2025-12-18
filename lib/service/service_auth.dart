@@ -12,13 +12,15 @@ class AuthService {
     required String password,
     required String nickName,
   }) async {
-    UserCredential result = await firebaseAuth.createUserWithEmailAndPassword(
+    final UserCredential result = await firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
 
-    User? user = result.user;
+    final User? user = result.user;
 
-    return "";
+    await _db.collection('user_collection').doc(user!.uid).set({});
+
+    return null;
   }
 }
