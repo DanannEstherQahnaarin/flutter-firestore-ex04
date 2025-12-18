@@ -1,11 +1,11 @@
-class User {
+class UserModel {
   final String uid;
   final String nickName;
   final String email;
   final String role;
   final DateTime createdAt;
 
-  User({
+  UserModel({
     required this.uid,
     required this.nickName,
     required this.email,
@@ -13,7 +13,7 @@ class User {
     required this.createdAt,
   });
 
-  factory User.fromFirebase(Map<String, dynamic> json) => User(
+  factory UserModel.fromFirebase(Map<String, dynamic> json) => UserModel(
     uid: json['uid'] as String,
     nickName: json['nickName'] as String,
     email: json['email'] as String,
