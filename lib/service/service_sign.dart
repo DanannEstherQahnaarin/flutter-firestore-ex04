@@ -1,11 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/service/service_auth.dart';
 
-class SignUp extends ChangeNotifier{
+class SignService {
+  Future<bool> signUp({
+    required String email,
+    required String password,
+    required String nickName,
+  }) async {
+    final result = await AuthService().signUp(
+      email: email,
+      password: password,
+      nickName: nickName,
+    );
 
-Future<bool> signUp({required String email, required String password, required String nickName}) async {
-  final user = await AuthService().signUp(email: email, password: password, nickName: nickName);
-
-  
-}
+    return result == null ? true : false;
+  }
 }

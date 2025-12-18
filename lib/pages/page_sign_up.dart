@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_formText.dart';
-import 'package:flutter_firestore_ex04/service/service_auth.dart';
 import 'package:flutter_firestore_ex04/service/service_sign.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 
