@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Form 내부에서 사용할 공용 TextFormField를 반환하는 함수
-///
 /// [controller] - 텍스트 입력을 제어하는 TextEditingController (필수)
 /// [labelText] - 레이블 텍스트
 /// [hintText] - 힌트 텍스트

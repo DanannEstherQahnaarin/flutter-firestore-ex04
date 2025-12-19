@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// AlertDialog를 표시하는 공통 함수
-///
 /// [context] - BuildContext
 /// [title] - Dialog 제목
 /// [content] - Dialog 내용

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// 재사용 가능한 ListView.builder를 생성하는 함수
-///
 /// [items] - 표시할 데이터 리스트
 /// [itemBuilder] - 각 항목을 빌드하는 콜백 함수 (필수)
 /// [emptyWidget] - 데이터가 없을 때 표시할 위젯 (기본값: 'No DATA' 텍스트)
