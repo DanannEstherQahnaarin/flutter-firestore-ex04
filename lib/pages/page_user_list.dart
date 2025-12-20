@@ -13,7 +13,7 @@ class UserListPage extends StatelessWidget {
     final AuthService authService = AuthService();
 
     return Scaffold(
-      appBar: buildCommonAppBar('사용자 목록'),
+      appBar: buildCommonAppBar(context, '사용자 목록'),
       body: StreamBuilder(
         stream: authService.getUsers(),
         builder: (context, snapshot) {

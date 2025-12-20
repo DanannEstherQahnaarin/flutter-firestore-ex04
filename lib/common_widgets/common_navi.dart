@@ -20,8 +20,9 @@ Widget buildCommonBottomNavigationBar({
 
   return BottomNavigationBar(
     currentIndex: currentIndex,
-    selectedItemColor: Colors.blue,
-    unselectedItemColor: Colors.amber,
+    selectedItemColor: const Color.fromARGB(255, 146, 219, 131),
+    unselectedItemColor: const Color.fromARGB(139, 252, 229, 229),
+    backgroundColor: const Color.fromARGB(255, 39, 39, 39),
     onTap: onTap,
     items: items,
     type: BottomNavigationBarType.fixed,

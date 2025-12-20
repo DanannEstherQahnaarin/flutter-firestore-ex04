@@ -19,7 +19,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: buildCommonAppBar('회원가입'),
+    appBar: buildCommonAppBar(context, '회원가입'),
     body: Padding(
       padding: const EdgeInsets.all(20),
       child: Form(

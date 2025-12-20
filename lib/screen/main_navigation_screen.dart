@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_navi.dart';
 import 'package:flutter_firestore_ex04/pages/page_about.dart';
-import 'package:flutter_firestore_ex04/pages/page_board_list.dart';
+import 'package:flutter_firestore_ex04/pages/page_board.dart';
 import 'package:flutter_firestore_ex04/pages/page_home.dart';
-import 'package:flutter_firestore_ex04/pages/page_image_board_list.dart';
+import 'package:flutter_firestore_ex04/pages/page_image_board.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -19,8 +19,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   // 4개의 메뉴 페이지 정의
   final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-    const BoardListPage(),
-    const ImageBoardListPage(),
+    const PostListPage(),
+    const ImagePostListPage(),
     const AboutPage(),
   ];
 
@@ -32,7 +32,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: buildCommonAppBar('Advanced Community'),
+    appBar: buildCommonAppBar(context, 'Advanced Community'),
     body: Center(
       child: _widgetOptions.elementAt(_selectedIndex), // 선택된 페이지 표시
     ),

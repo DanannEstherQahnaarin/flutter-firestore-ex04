@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BoardListPage extends StatelessWidget {
-  const BoardListPage({super.key});
+class ImagePostListPage extends StatelessWidget {
+  const ImagePostListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
