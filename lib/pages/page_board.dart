@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_listview.dart';
-import 'package:flutter_firestore_ex04/models/model_post.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_firestore_ex04/provider/provider_board.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';

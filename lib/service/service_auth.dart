@@ -33,9 +33,7 @@ class AuthService {
   Stream<List<UserModel>> getUsers() => _db
       .collection(userCollection)
       .snapshots()
-      .map(
-        (snapshot) => snapshot.docs.map((doc) => UserModel.fromFirebase(doc.data())).toList(),
-      );
+      .map((snapshot) => snapshot.docs.map((doc) => UserModel.fromDoc(doc.data())).toList());
 
   Future<void> updateUserRole(String uid, String newRole) async {
     await _db.collection(userCollection).doc(uid).update({'role': newRole});

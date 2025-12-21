@@ -13,7 +13,7 @@ class UserModel {
     required this.createdAt,
   });
 
-  factory UserModel.fromFirebase(Map<String, dynamic> json) => UserModel(
+  factory UserModel.fromDoc(Map<String, dynamic> json) => UserModel(
     uid: json['uid'] as String,
     nickName: json['nickName'] as String,
     email: json['email'] as String,

@@ -29,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
     final DocumentSnapshot doc = await _db.collection(userCollection).doc(uid).get();
 
     if (doc.exists) {
-      _userModel = UserModel.fromFirebase(doc.data() as Map<String, dynamic>);
+      _userModel = UserModel.fromDoc(doc.data() as Map<String, dynamic>);
     }
   }
 
