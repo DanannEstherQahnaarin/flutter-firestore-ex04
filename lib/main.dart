@@ -4,6 +4,7 @@ import 'package:flutter_firestore_ex04/firebase_options.dart';
 import 'package:flutter_firestore_ex04/pages/page_about.dart';
 import 'package:flutter_firestore_ex04/pages/page_board.dart';
 import 'package:flutter_firestore_ex04/pages/page_image_board.dart';
+import 'package:flutter_firestore_ex04/provider/provider_board.dart';
 import 'package:flutter_firestore_ex04/screen/main_navigation_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
@@ -14,7 +15,10 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => BoardProvider()),
+      ],
       child: const MyApp(),
     ),
   );

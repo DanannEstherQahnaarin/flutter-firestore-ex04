@@ -6,6 +6,7 @@ import 'package:flutter_firestore_ex04/models/model_user.dart';
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final String userCollection = 'user_collection';
 
   UserModel? _userModel;
   bool _isLoading = true;
@@ -25,7 +26,7 @@ class AuthProvider extends ChangeNotifier {
     });
   }
   Future<void> _fetchUserData(String uid) async {
-    final DocumentSnapshot doc = await _db.collection('users').doc(uid).get();
+    final DocumentSnapshot doc = await _db.collection(userCollection).doc(uid).get();
 
     if (doc.exists) {
       _userModel = UserModel.fromFirebase(doc.data() as Map<String, dynamic>);

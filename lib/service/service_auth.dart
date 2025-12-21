@@ -42,6 +42,6 @@ class AuthService {
   }
 
   Future<void> deleteUser(String uid) async {
-    await _db.collection('users').doc(uid).delete();
+    await _db.collection(userCollection).doc(uid).delete();
   }
 }

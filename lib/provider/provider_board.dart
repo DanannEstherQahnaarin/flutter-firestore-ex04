@@ -9,7 +9,6 @@ class BoardProvider with ChangeNotifier {
 
   List<PostModel> get posts => _posts;
 
-  // 게시글 목록 실시간 구독 (공지사항 우선 -> 최신순 정렬)
   Stream<List<PostModel>> getPostStream() => _db
       .collection('posts')
       .orderBy('isNotice', descending: true)
