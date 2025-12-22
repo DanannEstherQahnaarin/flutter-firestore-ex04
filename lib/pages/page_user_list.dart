@@ -29,29 +29,27 @@ class UserListPage extends StatelessWidget {
 
           return buildCommonListView<UserModel>(
             items: users,
-            itemBuilder: (context, index, user) {
-              return ListTile(
-                title: Text('${user.nickName}(${user.role})'),
-                subtitle: Text(user.email),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.admin_panel_settings)),
-                    IconButton(
-                      onPressed: () {
-                        showCommonAlertDialog(
-                          context: context,
-                          title: '삭제',
-                          content: '${user.nickName}을 삭제하시겠습니까?',
-                          onPositivePressed: () => authService.deleteUser(user.uid),
-                        );
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
-                  ],
-                ),
-              );
-            },
+            itemBuilder: (context, index, user) => ListTile(
+              title: Text('${user.nickName}(${user.role})'),
+              subtitle: Text(user.email),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.admin_panel_settings)),
+                  IconButton(
+                    onPressed: () {
+                      showCommonAlertDialog(
+                        context: context,
+                        title: '삭제',
+                        content: '${user.nickName}을 삭제하시겠습니까?',
+                        onPositivePressed: () => authService.deleteUser(user.uid),
+                      );
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
