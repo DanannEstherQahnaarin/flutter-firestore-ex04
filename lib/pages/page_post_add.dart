@@ -6,14 +6,14 @@ import 'package:flutter_firestore_ex04/service/service_validation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-class PostDetailPage extends StatefulWidget {
-  const PostDetailPage({super.key});
+class PostAddPage extends StatefulWidget {
+  const PostAddPage({super.key});
 
   @override
-  State<PostDetailPage> createState() => _PostDetailPageState();
+  State<PostAddPage> createState() => _PostDetailPageState();
 }
 
-class _PostDetailPageState extends State<PostDetailPage> {
+class _PostDetailPageState extends State<PostAddPage> {
   final formKey = GlobalKey<FormState>();
   final txtTitleController = TextEditingController();
   final txtContentController = TextEditingController();
