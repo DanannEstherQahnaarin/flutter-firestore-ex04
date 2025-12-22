@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_navi.dart';
 import 'package:flutter_firestore_ex04/pages/page_about.dart';
-import 'package:flutter_firestore_ex04/pages/page_board.dart';
+import 'package:flutter_firestore_ex04/pages/page_post_list.dart';
 import 'package:flutter_firestore_ex04/pages/page_home.dart';
 import 'package:flutter_firestore_ex04/pages/page_image_board.dart';
 

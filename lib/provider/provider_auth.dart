@@ -25,6 +25,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
+
   Future<void> _fetchUserData(String uid) async {
     final DocumentSnapshot doc = await _db.collection(userCollection).doc(uid).get();
 
@@ -49,4 +50,8 @@ class AuthProvider extends ChangeNotifier {
   }
 
   bool get isAdmin => _userModel?.role == 'admin';
+
+  /// 현재 로그인된 사용자의 정보를 반환합니다.
+  /// 로그인되어 있지 않으면 null을 반환합니다.
+  UserModel? get currentUser => _userModel;
 }
