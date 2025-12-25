@@ -30,6 +30,14 @@ class AuthService {
     }
   }
 
+  Future<User?> signIn({required String email, required String password}) async {
+    final UserCredential result = await firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return result.user;
+  }
+
   Stream<List<UserModel>> getUsers() => _db
       .collection(userCollection)
       .snapshots()

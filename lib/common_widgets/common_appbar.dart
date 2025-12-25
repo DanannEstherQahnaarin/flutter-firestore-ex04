@@ -16,22 +16,28 @@ PreferredSizeWidget buildCommonAppBar(BuildContext context, String title) {
   // Provider를 통해 인증 상태(AuthProvider) 접근
   final authProvider = context.watch<AuthProvider>();
 
+  // 현재 route 확인
+  final currentRoute = ModalRoute.of(context)?.settings.name;
+  final isSignPage = currentRoute == '/signIn' || currentRoute == '/signUp';
+
   return AppBar(
     title: Text(title),
+    automaticallyImplyLeading: !isSignPage,
     centerTitle: true, // 타이틀 중앙 정렬
     backgroundColor: const Color.fromARGB(255, 39, 39, 39), // AppBar 배경 색
     foregroundColor: const Color.fromARGB(139, 252, 229, 229), // AppBar 내 텍스트, 아이콘 색
     elevation: 2, // AppBar의 그림자 높이
     actions: [
-      if (authProvider.isAuthenticated)
-        // 로그인 상태: 로그아웃 아이콘 노출, 터치 시 로그아웃 실행
-        IconButton(onPressed: () => authProvider.signOut(), icon: const Icon(Icons.logout))
-      else
-        // 로그아웃 상태: 로그인 아이콘 노출, 터치 시 '/login' 페이지로 이동
-        IconButton(
-          onPressed: () => Navigator.pushNamed(context, '/login'),
-          icon: const Icon(Icons.login),
-        ),
+      if (!isSignPage)
+        if (authProvider.isAuthenticated)
+          // 로그인 상태: 로그아웃 아이콘 노출, 터치 시 로그아웃 실행
+          IconButton(onPressed: () => authProvider.signOut(), icon: const Icon(Icons.logout))
+        else
+          // 로그아웃 상태: 로그인 아이콘 노출, 터치 시 '/login' 페이지로 이동
+          IconButton(
+            onPressed: () => Navigator.pushNamed(context, '/signIn'),
+            icon: const Icon(Icons.login),
+          ),
     ],
   );
 }

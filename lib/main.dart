@@ -4,6 +4,8 @@ import 'package:flutter_firestore_ex04/firebase_options.dart';
 import 'package:flutter_firestore_ex04/pages/page_about.dart';
 import 'package:flutter_firestore_ex04/pages/page_post_list.dart';
 import 'package:flutter_firestore_ex04/pages/page_image_board.dart';
+import 'package:flutter_firestore_ex04/pages/page_sign_in.dart';
+import 'package:flutter_firestore_ex04/pages/page_sign_up.dart';
 import 'package:flutter_firestore_ex04/provider/provider_board.dart';
 import 'package:flutter_firestore_ex04/screen/main_navigation_screen.dart';
 import 'package:provider/provider.dart';
@@ -31,14 +33,48 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     title: 'Flutter Advanced Community',
     theme: ThemeData(primarySwatch: Colors.blue),
-    // 초기 페이지는 홈페이지로 설정
-    initialRoute: '/',
+    // 초기 페이지는 로그인페이지로 설정
+    initialRoute: '/signIn',
     routes: {
-      '/': (context) => const MainNavigationScreen(),
-      '/board': (context) => const PostListPage(),
-      '/imageBoard': (context) => const ImagePostListPage(),
-      '/about': (context) => const AboutPage(),
-      // TODO: 로그인, 회원가입 라우트 추가 예정
+      '/signIn': (context) => const SignInPage(),
+      '/signUp': (context) => const SignUpPage(),
+    },
+    onGenerateRoute: (settings) {
+      // 회원가입과 로그인 페이지는 인증 없이 접근 가능
+      if (settings.name == '/signIn' || settings.name == '/signUp') {
+        return null; // routes에서 처리
+      }
+
+      // 인증이 필요한 페이지들 - Builder를 사용하여 Provider에 접근
+      return MaterialPageRoute(
+        builder: (routeContext) {
+          final authProvider = Provider.of<AuthProvider>(routeContext, listen: false);
+
+          // 로딩 중이면 대기 화면 표시
+          if (authProvider.isLoading) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+
+          // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+          if (!authProvider.isAuthenticated) {
+            return const SignInPage();
+          }
+
+          // 인증된 경우 요청한 페이지로 이동
+          switch (settings.name) {
+            case '/':
+              return const MainNavigationScreen();
+            case '/board':
+              return const PostListPage();
+            case '/imageBoard':
+              return const ImagePostListPage();
+            case '/about':
+              return const AboutPage();
+            default:
+              return const SignInPage();
+          }
+        },
+      );
     },
   );
 }
