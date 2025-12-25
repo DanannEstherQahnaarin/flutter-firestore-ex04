@@ -47,4 +47,22 @@ class BoardProvider with ChangeNotifier {
   Future<void> incrementViewCount(String postId) async {
     await _db.collection('posts').doc(postId).update({'viewCount': FieldValue.increment(1)});
   }
+
+  Future<void> updatePost(
+    String postId, {
+    required String title,
+    required String content,
+    String? thumbnailUrl,
+    bool? isNotice,
+  }) async {
+    final Map<String, dynamic> updateData = {'title': title, 'content': content};
+
+    if (thumbnailUrl != null) {
+      updateData['thumbnailUrl'] = thumbnailUrl;
+    }
+
+    updateData['isNotice'] = isNotice ?? false;
+
+    await _db.collection('posts').doc(postId).update(updateData);
+  }
 }

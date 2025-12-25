@@ -47,30 +47,32 @@ class _SignUpPageState extends State<SignUpPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                showCommonAlertDialog(
-                  context: context,
-                  title: '회원가입',
-                  content: '회원가입을 진행하시겠습니까?',
-                  onPositivePressed: () async {
-                    final result = await SignService().signUp(
-                      email: txtEmailEditingController.text,
-                      password: txtPasswordEditingController.text,
-                      nickName: txtNickNameEditingController.text,
-                    );
+                if (formKey.currentState?.validate() ?? false) {
+                  showCommonAlertDialog(
+                    context: context,
+                    title: '회원가입',
+                    content: '회원가입을 진행하시겠습니까?',
+                    onPositivePressed: () async {
+                      final result = await SignService().signUp(
+                        email: txtEmailEditingController.text,
+                        password: txtPasswordEditingController.text,
+                        nickName: txtNickNameEditingController.text,
+                      );
 
-                    if (!context.mounted) return;
+                      if (!context.mounted) return;
 
-                    if (result) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('회원가입 되었습니다.')));
-                    } else {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('회원가입입에 실패하였습니다.')));
-                    }
-                  },
-                );
+                      if (result) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('회원가입 되었습니다.')));
+                      } else {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('회원가입입에 실패하였습니다.')));
+                      }
+                    },
+                  );
+                }
               },
               child: const Text('회원가입'),
             ),

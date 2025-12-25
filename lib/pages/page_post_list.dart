@@ -4,6 +4,7 @@ import 'package:flutter_firestore_ex04/common_widgets/common_listview.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_firestore_ex04/provider/provider_board.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
+import 'package:flutter_firestore_ex04/pages/page_post_detail.dart';
 
 class PostListPage extends StatelessWidget {
   const PostListPage({super.key});
@@ -54,7 +55,10 @@ class PostListPage extends StatelessWidget {
                     subtitle: Text('${item.writerNickname} | 조회수 ${item.viewCount}'),
                     onTap: () {
                       boardProvider.incrementViewCount(item.id);
-                      //Navigator.pushNamed(context, '/postDetail', arguments: post);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PostDetailPage(post: item)),
+                      );
                     },
                   ),
                 );
