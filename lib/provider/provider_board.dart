@@ -46,6 +46,7 @@ class BoardProvider with ChangeNotifier {
 
   Future<void> incrementViewCount(String postId) async {
     await _db.collection('posts').doc(postId).update({'viewCount': FieldValue.increment(1)});
+    notifyListeners();
   }
 
   Future<void> updatePost(

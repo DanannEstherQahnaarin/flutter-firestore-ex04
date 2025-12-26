@@ -18,9 +18,8 @@ class PostService {
     final authProvider = context.read<AuthProvider>();
 
     try {
-      // TODO: 이미지 업로드 로직이 필요하면 여기에 추가
-      // 현재는 thumbnailUrl을 null로 설정
       String? finalThumbnailUrl = null;
+
       if (selectedImage != null) {
         // 이미지 업로드 로직이 필요하면 여기에 구현
         // finalThumbnailUrl = await uploadImage(_selectedImage!);
