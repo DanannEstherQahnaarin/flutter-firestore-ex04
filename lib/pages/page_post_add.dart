@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
+import 'package:flutter_firestore_ex04/service/service_post.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -117,10 +118,32 @@ class _PostDetailPageState extends State<PostAddPage> {
               const SizedBox(height: 10),
               const Divider(),
               const SizedBox(height: 10),
+
+              RichText(
+                text: const TextSpan(
+                  text: 'Content',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: '  (게시판 본문을 10줄까지 입력할 수 있습니다)',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
               commonFormText(
                 controller: txtContentController,
                 labelText: 'Content',
-                maxLines: 10, // 게시판 본문 작성용, 넉넉하게 10줄로 설정
+                maxLines: 10,
                 validator: (value) => ValidationService.validateRequired(
                   value: value ?? '',
                   fieldName: 'Content',
@@ -173,9 +196,45 @@ class _PostDetailPageState extends State<PostAddPage> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (!formKey.currentState!.validate()) {
                         return;
+                      }
+
+                      // 로딩 표시
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(child: CircularProgressIndicator()),
+                      );
+
+                      final postService = PostService();
+                      final result = await postService.addPost(
+                        context: context,
+                        title: txtTitleController.text.trim(),
+                        contents: txtContentController.text.trim(),
+                        selectedImage: _selectedImage,
+                        isAdminNotice: isAdminNotice,
+                      );
+
+                      // 로딩 닫기
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+
+                      // 결과 메시지 표시
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(result.message),
+                            backgroundColor: result.success ? Colors.green : Colors.red,
+                          ),
+                        );
+
+                        // 성공 시 페이지 닫기
+                        if (result.success) {
+                          Navigator.pop(context);
+                        }
                       }
                     },
                     child: const Row(
@@ -184,9 +243,11 @@ class _PostDetailPageState extends State<PostAddPage> {
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                     child: const Row(
-                      children: [Icon(Icons.add), SizedBox(width: 10), Text('Cancel')],
+                      children: [Icon(Icons.cancel), SizedBox(width: 10), Text('Cancel')],
                     ),
                   ),
                 ],

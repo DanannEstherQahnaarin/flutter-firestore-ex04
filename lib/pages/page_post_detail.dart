@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/models/model_post.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
-import 'package:flutter_firestore_ex04/provider/provider_board.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -90,90 +90,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
             authProvider.currentUser?.uid == widget.post.writerId);
   }
 
-  Future<void> _savePost() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
-
-    final boardProvider = context.read<BoardProvider>();
-    final authProvider = context.read<AuthProvider>();
-
-    try {
-      // TODO: 이미지 업로드 로직이 필요하면 여기에 추가
-      // 현재는 기존 thumbnailUrl을 유지하거나 null로 설정
-      String? finalThumbnailUrl = _thumbnailUrl;
-      if (_selectedImage != null) {
-        // 이미지 업로드 로직이 필요하면 여기에 구현
-        // finalThumbnailUrl = await uploadImage(_selectedImage!);
-      }
-
-      await boardProvider.updatePost(
-        widget.post.id,
-        title: txtTitleController.text,
-        content: txtContentController.text,
-        thumbnailUrl: finalThumbnailUrl,
-        isNotice: authProvider.isAdmin ? isAdminNotice : null,
-      );
-
-      if (mounted) {
-        setState(() {
-          _isEditing = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('게시글이 수정되었습니다.')));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('수정 중 오류가 발생했습니다: $e')));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final canEdit = _canEdit();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? '게시글 수정' : '게시글 상세'),
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 39, 39, 39),
-        foregroundColor: const Color.fromARGB(139, 252, 229, 229),
-        elevation: 2,
-        actions: canEdit
-            ? [
-                if (!_isEditing)
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = true;
-                      });
-                    },
-                  )
-                else
-                  IconButton(icon: const Icon(Icons.save), onPressed: _savePost),
-                if (_isEditing)
-                  IconButton(
-                    icon: const Icon(Icons.cancel),
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = false;
-                        txtTitleController.text = widget.post.title;
-                        txtContentController.text = widget.post.content;
-                        isAdminNotice = widget.post.isNotice;
-                        _selectedImage = null;
-                        _thumbnailUrl = widget.post.thumbnailUrl;
-                      });
-                    },
-                  ),
-              ]
-            : null,
-      ),
+      appBar: buildCommonAppBar(context, _isEditing ? '게시글 수정' : '게시글 상세'),
       body: _isEditing ? _buildEditView(authProvider) : _buildDetailView(),
     );
   }
