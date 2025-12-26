@@ -15,7 +15,7 @@ class SignService {
 
     return result == null
         ? (success: true, message: '회원가입 되었습니다.')
-        : (success: false, message: '회원가입에 실패하였습니다.');
+        : (success: false, message: result);
   }
 
   Future<({bool success, User? user, String message})> signIn({

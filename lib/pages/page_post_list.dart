@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_listview.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_firestore_ex04/provider/provider_board.dart';
@@ -67,25 +66,12 @@ class PostListPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: authProvider.isAdmin
+      floatingActionButton: authProvider.isAuthenticated
           ? FloatingActionButton(
-              onPressed: () => showCommonAlertDialog(
-                context: context,
-                title: '',
-                content: '',
-                onPositivePressed: () {},
-              ),
+              onPressed: () => Navigator.pushNamed(context, '/post-add'),
+              child: const Icon(Icons.add),
             )
-          : (authProvider.isAuthenticated
-                ? FloatingActionButton(
-                    onPressed: () => showCommonAlertDialog(
-                      context: context,
-                      title: '',
-                      content: '',
-                      onPositivePressed: () {},
-                    ),
-                  )
-                : null),
+          : null,
     );
   }
 }

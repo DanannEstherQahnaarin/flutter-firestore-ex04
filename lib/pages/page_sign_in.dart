@@ -21,54 +21,78 @@ class _SignPageState extends State<SignInPage> {
       appBar: buildCommonAppBar(context, 'Flutter Advanced Community'),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              commonFormText(
-                controller: txtEmailEditingController,
-                labelText: '이메일',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) => ValidationService.validateEmail(value: value ?? ''),
+        child: Center(
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: ' Member Sign In ',
+              labelStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                fontStyle: FontStyle.italic,
               ),
-              const SizedBox(height: 15),
-              commonFormText(
-                controller: txtPasswordEditingController,
-                labelText: '패스워드',
-                obscureText: true,
-                validator: (value) => ValidationService.validatePassword(value: value ?? ''),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (formKey.currentState?.validate() ?? false) {
-                    final result = await SignService().signIn(
-                      email: txtEmailEditingController.text,
-                      password: txtPasswordEditingController.text,
-                    );
+              border: OutlineInputBorder(), // 외곽선 디자인
+              contentPadding: EdgeInsets.only(
+                bottom: 10,
+                top: 50,
+                left: 15,
+                right: 15,
+              ), // 내부 여백
+            ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  commonFormText(
+                    controller: txtEmailEditingController,
+                    labelText: '이메일',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) => ValidationService.validateEmail(value: value ?? ''),
+                  ),
+                  const SizedBox(height: 15),
+                  commonFormText(
+                    controller: txtPasswordEditingController,
+                    labelText: '패스워드',
+                    obscureText: true,
+                    validator: (value) =>
+                        ValidationService.validatePassword(value: value ?? ''),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (formKey.currentState?.validate() ?? false) {
+                        final result = await SignService().signIn(
+                          email: txtEmailEditingController.text,
+                          password: txtPasswordEditingController.text,
+                        );
 
-                    if (!context.mounted) return;
+                        if (!context.mounted) return;
 
-                    if (result.success) {
-                      Navigator.pushReplacementNamed(context, '/');
-                    } else {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(result.message)));
-                    }
-                  }
-                },
-                child: const Text('로그인'),
+                        if (result.success) {
+                          Navigator.pushReplacementNamed(context, '/');
+                        } else {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(result.message)));
+                        }
+                      }
+                    },
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [Icon(Icons.person_pin), SizedBox(width: 8), Text('로그인')],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/signUp');
+                    },
+                    child: const Text('계정이 없으신가요? 회원가입'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/signUp');
-                },
-                child: const Text('계정이 없으신가요? 회원가입'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

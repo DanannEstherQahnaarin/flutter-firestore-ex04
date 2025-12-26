@@ -22,7 +22,18 @@ class AuthService {
 
       final User? user = result.user;
 
-      await _db.collection(userCollection).doc(user!.uid).set({});
+      await _db
+          .collection(userCollection)
+          .doc(user!.uid)
+          .set(
+            UserModel(
+              uid: user.uid,
+              nickName: nickName,
+              email: email,
+              role: 'user',
+              createdAt: DateTime.now(),
+            ).toFirebase(),
+          );
 
       return null;
     } catch (e) {

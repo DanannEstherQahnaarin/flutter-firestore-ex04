@@ -25,6 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
         padding: const EdgeInsets.all(20),
         child: Form(
           key: formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputDecorator(
             decoration: const InputDecoration(
               labelText: ' Member Sign Up ',
