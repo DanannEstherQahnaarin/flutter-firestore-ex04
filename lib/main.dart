@@ -1,5 +1,8 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_firestore_ex04/firebase_options.dart';
 import 'package:flutter_firestore_ex04/pages/page_about.dart';
 import 'package:flutter_firestore_ex04/pages/page_post_add.dart';
@@ -14,6 +17,25 @@ import 'package:flutter_firestore_ex04/provider/provider_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // 플랫폼별로 Firebase App Check 활성화
+  if (kIsWeb) {
+    // Web 플랫폼은 App Check 지원 안 함 (선택적)
+    // await FirebaseAppCheck.instance.activate(
+    //   webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    // );
+  } else if (defaultTargetPlatform == TargetPlatform.android) {
+    // Android 플랫폼
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    );
+  } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS) {
+    // iOS/macOS 플랫폼
+    await FirebaseAppCheck.instance.activate(
+      appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
+    );
+  }
 
   runApp(
     MultiProvider(

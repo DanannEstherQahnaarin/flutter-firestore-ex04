@@ -1,76 +1,74 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-
-admin.initializeApp();
-
 /**
- * 게시글 조회수 증가 Cloud Function
- * 
- * 보안 규칙:
- * - 인증된 사용자만 호출 가능
- * - postId가 유효한지 검증
- * - 중복 조회 방지 (선택적)
- * 
- * 사용법:
- * - Flutter에서 cloud_functions 패키지를 통해 호출
- * - 함수명: incrementViewCount
- * - 파라미터: { postId: string }
+ * Import function triggers from their respective submodules:
+ *
+ * const {onCall} = require("firebase-functions/v2/https");
+ * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-exports.incrementViewCount = functions.https.onCall(async (data, context) => {
-  // 인증 확인 (선택적 - 비회원도 조회 가능하게 하려면 제거)
-  // if (!context.auth) {
-  //   throw new functions.https.HttpsError(
-  //     'unauthenticated',
-  //     '인증이 필요합니다.'
-  //   );
-  // }
 
-  const { postId } = data;
+const {setGlobalOptions} = require("firebase-functions");
+const {onRequest} = require("firebase-functions/https");
+const logger = require("firebase-functions/logger");
 
-  // 파라미터 검증
-  if (!postId || typeof postId !== 'string') {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'postId가 필요합니다.'
-    );
+// For cost control, you can set the maximum number of containers that can be
+// running at the same time. This helps mitigate the impact of unexpected
+// traffic spikes by instead downgrading performance. This limit is a
+// per-function limit. You can override the limit for each function using the
+// `maxInstances` option in the function's options, e.g.
+// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
+// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
+// functions should each use functions.runWith({ maxInstances: 10 }) instead.
+// In the v1 API, each function can only serve one request per container, so
+// this will be the maximum concurrent request count.
+setGlobalOptions({ maxInstances: 10 });
+
+// Create and deploy your first functions
+// https://firebase.google.com/docs/functions/get-started
+
+// exports.helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
+// 상단 import 부분을 v2용으로 확인하세요
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const admin = require("firebase-admin");
+
+if (admin.apps.length === 0) {
+  admin.initializeApp();
+}
+
+// 매개변수를 (request) 하나로 변경합니다.
+exports.incrementViewCount = onCall(async (request) => {
+  
+  // 로그에서 확인한 구조: data는 request.data 안에 있습니다.
+  const postId = request.data.postId;
+
+  console.log("Extracted postId:", postId);
+
+  if (!postId) {
+    throw new HttpsError('invalid-argument', 'postId가 전달되지 않았습니다.');
   }
 
   try {
     const db = admin.firestore();
     const postRef = db.collection('post_collection').doc(postId);
 
-    // 문서 존재 확인
-    const postDoc = await postRef.get();
-    if (!postDoc.exists) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        '게시글을 찾을 수 없습니다.'
-      );
-    }
-
-    // 서버 측에서 안전하게 조회수 증가
+    // 원자적 증가 (Atomic Increment)
     await postRef.update({
-      viewCount: admin.firestore.FieldValue.increment(1),
+      viewCount: admin.firestore.FieldValue.increment(1)
     });
 
-    // 업데이트된 조회수 반환
+    // 최신값 읽기
     const updatedDoc = await postRef.get();
-    const updatedViewCount = updatedDoc.data()?.viewCount || 0;
-
-    // JavaScript Number로 명시적 변환 (Int64 문제 방지)
+    
     return {
       success: true,
-      viewCount: Number(updatedViewCount),
-      message: '조회수가 증가되었습니다.',
+      viewCount: updatedDoc.data().viewCount || 0,
+      message: '조회수 증가 완료'
     };
   } catch (error) {
-    if (error instanceof functions.https.HttpsError) {
-      throw error;
-    }
-    throw new functions.https.HttpsError(
-      'internal',
-      '조회수 증가 중 오류가 발생했습니다: ' + error.message
-    );
+    console.error("Firestore Error:", error);
+    throw new HttpsError('internal', error.message);
   }
 });
-

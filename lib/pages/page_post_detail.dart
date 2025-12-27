@@ -171,6 +171,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
               ),
               ElevatedButton(
                 onPressed: () {
+                  // 원래 context를 저장 (dialog가 닫힌 후에도 사용하기 위해)
+                  final navigatorContext = Navigator.of(context);
+
                   showCommonAlertDialog(
                     context: context,
                     title: 'Delete',
@@ -189,6 +192,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                           backgroundColor: result.success ? Colors.green : Colors.red,
                         ),
                       );
+
+                      // 삭제 성공 시 리스트 페이지로 돌아가기
+                      if (result.success && mounted) {
+                        // PostDetailPage를 닫아서 리스트 페이지로 돌아감
+                        navigatorContext.pop();
+                      }
                     },
                   );
                 },
