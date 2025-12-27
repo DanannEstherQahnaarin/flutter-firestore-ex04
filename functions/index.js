@@ -57,9 +57,10 @@ exports.incrementViewCount = functions.https.onCall(async (data, context) => {
     const updatedDoc = await postRef.get();
     const updatedViewCount = updatedDoc.data()?.viewCount || 0;
 
+    // JavaScript Number로 명시적 변환 (Int64 문제 방지)
     return {
       success: true,
-      viewCount: updatedViewCount,
+      viewCount: Number(updatedViewCount),
       message: '조회수가 증가되었습니다.',
     };
   } catch (error) {

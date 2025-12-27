@@ -22,12 +22,19 @@ class SignService {
     required String email,
     required String password,
   }) async {
-    final User? result = await AuthService().signIn(email: email, password: password);
+    try {
+      final User? result = await AuthService().signIn(email: email, password: password);
 
-    if (result != null) {
-      return (success: true, user: result, message: '');
-    } else {
-      return (success: false, user: null, message: '로그인에 실패하였습니다');
+      if (result != null) {
+        return (success: true, user: result, message: '로그인되었습니다.');
+      } else {
+        return (success: false, user: null, message: '로그인에 실패하였습니다.');
+      }
+    } on FirebaseAuthException catch (e) {
+      // AuthService에서 변환된 사용자 친화적인 메시지 사용
+      return (success: false, user: null, message: e.message ?? '로그인에 실패하였습니다.');
+    } catch (e) {
+      return (success: false, user: null, message: '로그인 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 }

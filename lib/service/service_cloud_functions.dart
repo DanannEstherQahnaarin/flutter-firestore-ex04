@@ -26,9 +26,15 @@ class CloudFunctionsService {
 
       final data = result.data as Map<String, dynamic>;
 
+      // viewCount를 num으로 받아서 int로 변환 (Int64 문제 방지)
+      final viewCountValue = data['viewCount'];
+      final int viewCount = viewCountValue is num
+          ? viewCountValue.toInt()
+          : (viewCountValue is String ? int.tryParse(viewCountValue) ?? 0 : 0);
+
       return (
         success: data['success'] as bool? ?? false,
-        viewCount: data['viewCount'] as int? ?? 0,
+        viewCount: viewCount,
         message: data['message'] as String? ?? '조회수가 증가되었습니다.',
       );
     } on FirebaseFunctionsException catch (e) {
