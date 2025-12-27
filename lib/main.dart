@@ -9,6 +9,8 @@ import 'package:flutter_firestore_ex04/pages/page_post_add.dart';
 import 'package:flutter_firestore_ex04/pages/page_post_list.dart';
 import 'package:flutter_firestore_ex04/pages/page_image_board.dart';
 import 'package:flutter_firestore_ex04/provider/provider_board.dart';
+import 'package:flutter_firestore_ex04/provider/provider_home.dart';
+import 'package:flutter_firestore_ex04/provider/provider_img_board.dart';
 import 'package:flutter_firestore_ex04/screen/main_navigation_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
@@ -43,6 +45,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BoardProvider()),
+        ChangeNotifierProvider(create: (_) => ImageBoardProvider()),
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
       ],
       child: const MyApp(),
     ),
