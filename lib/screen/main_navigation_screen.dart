@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
+import 'package:flutter_firestore_ex04/common_widgets/common_Drawer.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_navi.dart';
 import 'package:flutter_firestore_ex04/pages/page_about.dart';
 import 'package:flutter_firestore_ex04/pages/page_post_list.dart';
@@ -33,6 +34,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: buildCommonAppBar(context, 'Advanced Community'),
+    drawer: buildDrawerMenu(context),
     body: Center(
       child: _widgetOptions.elementAt(_selectedIndex), // 선택된 페이지 표시
     ),

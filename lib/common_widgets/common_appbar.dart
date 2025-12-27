@@ -27,17 +27,5 @@ PreferredSizeWidget buildCommonAppBar(BuildContext context, String title) {
     backgroundColor: const Color.fromARGB(255, 39, 39, 39), // AppBar 배경 색
     foregroundColor: const Color.fromARGB(139, 252, 229, 229), // AppBar 내 텍스트, 아이콘 색
     elevation: 2, // AppBar의 그림자 높이
-    actions: [
-      if (!isSignPage)
-        if (authProvider.isAuthenticated)
-          // 로그인 상태: 로그아웃 아이콘 노출, 터치 시 로그아웃 실행
-          IconButton(onPressed: () => authProvider.signOut(), icon: const Icon(Icons.logout))
-        else
-          // 로그아웃 상태: 로그인 아이콘 노출, 터치 시 '/login' 페이지로 이동
-          IconButton(
-            onPressed: () => Navigator.pushNamed(context, '/signIn'),
-            icon: const Icon(Icons.login),
-          ),
-    ],
   );
 }

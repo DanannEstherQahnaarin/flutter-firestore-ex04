@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
@@ -26,6 +28,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   late TextEditingController txtContentController;
   bool isAdminNotice = false;
   XFile? _selectedImage;
+  Uint8List? _imageBytes;
   String? _thumbnailUrl;
 
   @override
@@ -49,8 +52,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
+      // 웹 플랫폼에서는 바이트 데이터를 읽어서 저장
+      Uint8List? bytes;
+      if (kIsWeb) {
+        bytes = await image.readAsBytes();
+      }
+
       setState(() {
         _selectedImage = image;
+        _imageBytes = bytes;
       });
     }
   }
@@ -258,7 +268,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
+                child: kIsWeb
+                    ? _imageBytes != null
+                          ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                          : const Center(child: CircularProgressIndicator())
+                    : Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 5),
@@ -269,6 +283,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   onPressed: () {
                     setState(() {
                       _selectedImage = null;
+                      _imageBytes = null;
                     });
                   },
                   icon: const Icon(Icons.delete, color: Colors.red),
@@ -356,6 +371,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     isAdminNotice = widget.post.isNotice;
                     _thumbnailUrl = widget.post.thumbnailUrl;
                     _selectedImage = null;
+                    _imageBytes = null;
                   });
                 },
                 child: const Row(children: [Icon(Icons.cancel), Text('Cancel')]),

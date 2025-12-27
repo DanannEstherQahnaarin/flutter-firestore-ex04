@@ -5,8 +5,6 @@ import 'package:flutter_firestore_ex04/pages/page_about.dart';
 import 'package:flutter_firestore_ex04/pages/page_post_add.dart';
 import 'package:flutter_firestore_ex04/pages/page_post_list.dart';
 import 'package:flutter_firestore_ex04/pages/page_image_board.dart';
-import 'package:flutter_firestore_ex04/pages/page_sign_in.dart';
-import 'package:flutter_firestore_ex04/pages/page_sign_up.dart';
 import 'package:flutter_firestore_ex04/provider/provider_board.dart';
 import 'package:flutter_firestore_ex04/screen/main_navigation_screen.dart';
 import 'package:provider/provider.dart';
@@ -39,19 +37,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeProvider.lightTheme,
       darkTheme: ThemeProvider.darkTheme,
       themeMode: themeProvider.themeMode,
-      // 초기 페이지는 로그인페이지로 설정
-      initialRoute: '/signIn',
-      routes: {
-        '/signIn': (context) => const SignInPage(),
-        '/signUp': (context) => const SignUpPage(),
-      },
+      // 초기 페이지는 홈으로 설정 (인증 없이 접근 가능)
+      initialRoute: '/',
+      routes: {'/': (context) => const MainNavigationScreen()},
       onGenerateRoute: (settings) {
-        // 회원가입과 로그인 페이지는 인증 없이 접근 가능
-        if (settings.name == '/signIn' || settings.name == '/signUp') {
+        // 홈 페이지는 인증 없이 접근 가능
+        if (settings.name == '/') {
           return null; // routes에서 처리
         }
 
-        // 인증이 필요한 페이지들 - Builder를 사용하여 Provider에 접근
+        // 다른 페이지들 - Builder를 사용하여 Provider에 접근
         return MaterialPageRoute(
           builder: (routeContext) {
             final authProvider = Provider.of<AuthProvider>(routeContext, listen: false);
@@ -61,15 +56,8 @@ class MyApp extends StatelessWidget {
               return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
 
-            // 인증되지 않은 경우 로그인 페이지로 리다이렉트
-            if (!authProvider.isAuthenticated) {
-              return const SignInPage();
-            }
-
-            // 인증된 경우 요청한 페이지로 이동
+            // 인증이 필요한 페이지들
             switch (settings.name) {
-              case '/':
-                return const MainNavigationScreen();
               case '/board':
                 return const PostListPage();
               case '/post-add':
@@ -79,7 +67,7 @@ class MyApp extends StatelessWidget {
               case '/about':
                 return const AboutPage();
               default:
-                return const SignInPage();
+                return const MainNavigationScreen();
             }
           },
         );

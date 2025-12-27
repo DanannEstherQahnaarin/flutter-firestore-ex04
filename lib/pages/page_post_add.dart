@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
@@ -20,6 +22,7 @@ class _PostDetailPageState extends State<PostAddPage> {
   final txtContentController = TextEditingController();
   bool isAdminNotice = false;
   XFile? _selectedImage;
+  Uint8List? _imageBytes;
 
   @override
   void dispose() {
@@ -33,8 +36,15 @@ class _PostDetailPageState extends State<PostAddPage> {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
+      // 웹 플랫폼에서는 바이트 데이터를 읽어서 저장
+      Uint8List? bytes;
+      if (kIsWeb) {
+        bytes = await image.readAsBytes();
+      }
+
       setState(() {
         _selectedImage = image;
+        _imageBytes = bytes;
       });
     }
   }
@@ -173,7 +183,11 @@ class _PostDetailPageState extends State<PostAddPage> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
+                    child: kIsWeb
+                        ? _imageBytes != null
+                              ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                              : const Center(child: CircularProgressIndicator())
+                        : Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -184,6 +198,7 @@ class _PostDetailPageState extends State<PostAddPage> {
                       onPressed: () {
                         setState(() {
                           _selectedImage = null;
+                          _imageBytes = null;
                         });
                       },
                       icon: const Icon(Icons.delete, color: Colors.red),

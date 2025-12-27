@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/models/model_post.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
@@ -19,13 +21,33 @@ class PostService {
     final authProvider = context.read<AuthProvider>();
 
     try {
+      final currentUser = authProvider.currentUser;
+      if (currentUser == null) {
+        return (success: false, message: '로그인이 필요합니다.');
+      }
+
       String? finalThumbnailUrl;
 
       if (selectedImage != null) {
         final fileService = FileCtlService();
-        final file = File(selectedImage.path);
+
+        // 웹과 모바일 플랫폼에 따라 다른 방식으로 업로드
+        Uint8List? imageBytes;
+        File? file;
+
+        if (kIsWeb) {
+          // 웹: 바이트 데이터 읽기
+          imageBytes = await selectedImage.readAsBytes();
+        } else {
+          // 모바일: File 객체 생성
+          file = File(selectedImage.path);
+        }
+
         final uploadResult = await fileService.fileUpload(
+          uid: currentUser.uid,
+          folder: 'posts',
           file: file,
+          bytes: imageBytes,
           fileName: '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.name}',
         );
 
@@ -34,11 +56,6 @@ class PostService {
         } else {
           return (success: false, message: '이미지 업로드 실패: ${uploadResult.url}');
         }
-      }
-
-      final currentUser = authProvider.currentUser;
-      if (currentUser == null) {
-        return (success: false, message: '로그인이 필요합니다.');
       }
 
       final now = DateTime.now();
@@ -74,11 +91,31 @@ class PostService {
     String? finalThumbnailUrl = post.thumbnailUrl;
 
     try {
+      final currentUser = authProvider.currentUser;
+      if (currentUser == null) {
+        return (success: false, message: '로그인이 필요합니다.');
+      }
+
       if (selectedImage != null) {
         final fileService = FileCtlService();
-        final file = File(selectedImage.path);
+
+        // 웹과 모바일 플랫폼에 따라 다른 방식으로 업로드
+        Uint8List? imageBytes;
+        File? file;
+
+        if (kIsWeb) {
+          // 웹: 바이트 데이터 읽기
+          imageBytes = await selectedImage.readAsBytes();
+        } else {
+          // 모바일: File 객체 생성
+          file = File(selectedImage.path);
+        }
+
         final uploadResult = await fileService.fileUpload(
+          uid: currentUser.uid,
+          folder: 'posts',
           file: file,
+          bytes: imageBytes,
           fileName: '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.name}',
         );
 

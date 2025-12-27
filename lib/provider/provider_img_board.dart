@@ -1,21 +1,38 @@
 // lib/providers/image_board_provider.dart
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firestore_ex04/service/service_file.dart';
 
 class ImageBoardProvider with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // 이미지 업로드 및 게시물 생성
-  Future<void> uploadImagePost(File imageFile, String description, String userId) async {
-    // 1. Storage에 이미지 업로드
-    final String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final Reference ref = _storage.ref().child('posts/$fileName');
-    final UploadTask uploadTask = ref.putFile(imageFile);
-    final TaskSnapshot snapshot = await uploadTask;
-    final String downloadUrl = await snapshot.ref.getDownloadURL();
+  Future<void> uploadImagePost({
+    File? imageFile,
+    Uint8List? imageBytes,
+    required String description,
+    required String userId,
+    String? fileName,
+  }) async {
+    // 1. Storage에 이미지 업로드 (새로운 경로 규칙 사용)
+    final fileService = FileCtlService();
+    final String fName = fileName ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+    final uploadResult = await fileService.fileUpload(
+      uid: userId,
+      folder: 'images',
+      file: imageFile,
+      bytes: imageBytes,
+      fileName: fName,
+    );
+
+    if (!uploadResult.success) {
+      throw Exception('이미지 업로드 실패: ${uploadResult.url}');
+    }
+
+    final String downloadUrl = uploadResult.url;
 
     // 2. Firestore에 정보 저장
     await _db.collection('imagePosts').add({
