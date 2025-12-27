@@ -4,14 +4,14 @@ import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/service/service_sign.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class SignUpDialog extends StatefulWidget {
+  const SignUpDialog({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<SignUpDialog> createState() => _SignUpDialog();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpDialog extends State<SignUpDialog> {
   final txtEmailEditingController = TextEditingController();
   final txtPasswordEditingController = TextEditingController();
   final txtNickNameEditingController = TextEditingController();

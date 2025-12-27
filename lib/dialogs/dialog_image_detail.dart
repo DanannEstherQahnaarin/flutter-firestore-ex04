@@ -3,14 +3,14 @@ import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/service/service_sign.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 
-class SignInDialog extends StatefulWidget {
-  const SignInDialog({super.key});
+class ImageDetailDialog extends StatefulWidget {
+  const ImageDetailDialog({super.key});
 
   @override
-  State<SignInDialog> createState() => _SignInDialog();
+  State<ImageDetailDialog> createState() => _ImageDetailDialog();
 }
 
-class _SignInDialog extends State<SignInDialog> {
+class _ImageDetailDialog extends State<ImageDetailDialog> {
   final txtEmailEditingController = TextEditingController();
   final txtPasswordEditingController = TextEditingController();
   final formKey = GlobalKey<FormState>();

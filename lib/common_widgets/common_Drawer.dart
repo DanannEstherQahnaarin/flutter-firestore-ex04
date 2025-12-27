@@ -33,7 +33,7 @@ Widget buildDrawerMenu(BuildContext context) {
             title: const Text('회원가입'),
             onTap: () {
               Navigator.pop(context);
-              showDialog(context: context, builder: (context) => const SignUpPage());
+              showDialog(context: context, builder: (context) => const SignUpDialog());
             },
           ),
           ListTile(
@@ -41,7 +41,7 @@ Widget buildDrawerMenu(BuildContext context) {
             title: const Text('로그인'),
             onTap: () {
               Navigator.pop(context);
-              showDialog(context: context, builder: (context) => const SignInPage());
+              showDialog(context: context, builder: (context) => const SignInDialog());
             },
           ),
           ListTile(

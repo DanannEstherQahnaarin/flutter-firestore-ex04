@@ -26,6 +26,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   final formKey = GlobalKey<FormState>();
   late TextEditingController txtTitleController;
   late TextEditingController txtContentController;
+  late TextEditingController txtCommentController;
   bool isAdminNotice = false;
   XFile? _selectedImage;
   Uint8List? _imageBytes;
@@ -36,6 +37,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.initState();
     txtTitleController = TextEditingController(text: widget.post.title);
     txtContentController = TextEditingController(text: widget.post.content);
+    txtCommentController = TextEditingController();
     isAdminNotice = widget.post.isNotice;
     _thumbnailUrl = widget.post.thumbnailUrl;
   }
@@ -205,6 +207,52 @@ class _PostDetailPageState extends State<PostDetailPage> {
               ),
             ] else
               const SizedBox.shrink(),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Member Join', // 상단 타이틀
+                      border: OutlineInputBorder(), // 테두리
+                      contentPadding: EdgeInsets.all(20), // 테두리와 내부 위젯 사이의 여백
+                    ),
+                    child: Form(
+                      child: Column(
+                        children: [
+                          const Icon(Icons.comment),
+                          commonFormText(
+                            controller: txtCommentController,
+                            labelText: 'Comment',
+                          ),
+                          IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  StreamBuilder(
+                    stream: null,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final comments = snapshot.data;
+
+                      return ListView.separated(
+                        itemBuilder: (context, index) {
+
+                        },
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemCount: 0,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ],
