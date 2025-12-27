@@ -18,7 +18,7 @@ class ImagePostModel {
   });
 
   factory ImagePostModel.fromDoc(DocumentSnapshot doc) {
-    var data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>;
     return ImagePostModel(
       id: doc.id,
       imageUrl: data['imageUrl'] ?? '',

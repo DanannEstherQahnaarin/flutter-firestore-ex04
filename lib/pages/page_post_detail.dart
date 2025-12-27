@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
+import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/models/model_post.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
+import 'package:flutter_firestore_ex04/service/service_post.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -97,11 +99,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
     return Scaffold(
       appBar: buildCommonAppBar(context, _isEditing ? '게시글 수정' : '게시글 상세'),
-      body: _isEditing ? _buildEditView(authProvider) : _buildDetailView(),
+      body: _isEditing ? _buildEditView(authProvider) : _buildDetailView(isEdit: canEdit),
     );
   }
 
-  Widget _buildDetailView() => SingleChildScrollView(
+  Widget _buildDetailView({bool isEdit = false}) => SingleChildScrollView(
     padding: const EdgeInsets.all(16.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,6 +147,47 @@ class _PostDetailPageState extends State<PostDetailPage> {
           const SizedBox(height: 16),
         ],
         Text(widget.post.content, style: const TextStyle(fontSize: 16)),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            if (isEdit) ...[
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isEditing = true;
+                  });
+                },
+                child: const Row(children: [Icon(Icons.edit), Text('Edit')]),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  showCommonAlertDialog(
+                    context: context,
+                    title: 'Delete',
+                    content: '삭제하시겠습니까?',
+                    onPositivePressed: () async {
+                      final result = await PostService().deletePost(
+                        context: context,
+                        postId: widget.post.id,
+                      );
+
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(result.message),
+                          backgroundColor: result.success ? Colors.green : Colors.red,
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: const Row(children: [Icon(Icons.remove), Text('Delete')]),
+              ),
+            ] else
+              const SizedBox.shrink(),
+          ],
+        ),
       ],
     ),
   );
@@ -263,6 +306,62 @@ class _PostDetailPageState extends State<PostDetailPage> {
               ],
             ),
           ],
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  showCommonAlertDialog(
+                    context: context,
+                    title: 'Save',
+                    content: '저장장하시겠습니까?',
+                    onPositivePressed: () async {
+                      final result = await PostService().updatePost(
+                        context: context,
+                        post: PostModel(
+                          id: widget.post.id,
+                          title: txtTitleController.text,
+                          content: txtContentController.text,
+                          writerId: widget.post.writerId,
+                          writerNickname: widget.post.writerNickname,
+                          viewCount: widget.post.viewCount,
+                          isNotice: isAdminNotice,
+                          createdAt: widget.post.createdAt,
+                        ),
+                        formKey: formKey,
+                        isAdminNotice: isAdminNotice,
+                        selectedImage: _selectedImage,
+                      );
+
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(result.message),
+                          backgroundColor: result.success ? Colors.green : Colors.red,
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: const Row(children: [Icon(Icons.save), Text('Save')]),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isEditing = false;
+                    // _buildEditView 초기화
+                    txtTitleController.text = widget.post.title;
+                    txtContentController.text = widget.post.content;
+                    isAdminNotice = widget.post.isNotice;
+                    _thumbnailUrl = widget.post.thumbnailUrl;
+                    _selectedImage = null;
+                  });
+                },
+                child: const Row(children: [Icon(Icons.cancel), Text('Cancel')]),
+              ),
+            ],
+          ),
         ],
       ),
     ),

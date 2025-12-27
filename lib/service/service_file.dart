@@ -61,4 +61,15 @@ class FileCtlService {
       return (success: false, message: '파일 다운로드 오류: ${e.toString()}', filePath: null);
     }
   }
+
+  Future<({bool success, String message})> fileDelete({required String downloadURL}) async {
+    try {
+      // downloadURL에서 Reference 가져오기
+      final Reference ref = _storage.refFromURL(downloadURL);
+      await ref.delete();
+      return (success: true, message: '파일이 삭제되었습니다.');
+    } catch (e) {
+      return (success: false, message: '파일 삭제 오류: ${e.toString()}');
+    }
+  }
 }

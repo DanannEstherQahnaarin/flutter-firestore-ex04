@@ -66,4 +66,20 @@ class BoardProvider with ChangeNotifier {
 
     await _db.collection('posts').doc(postId).update(updateData);
   }
+
+  Future<PostModel?> getPost(String postId) async {
+    try {
+      final doc = await _db.collection('posts').doc(postId).get();
+      if (doc.exists) {
+        return PostModel.fromDoc(doc);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> deletePost(String postId) async {
+    await _db.collection('posts').doc(postId).delete();
+  }
 }
