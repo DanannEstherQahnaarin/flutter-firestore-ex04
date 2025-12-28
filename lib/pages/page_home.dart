@@ -73,7 +73,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 20),
 
           // 3. 내가 즐겨찾기한 이미지 (로그인 시에만)
-          if (authProvider.isAuthenticated) ...[
+          if (authProvider.isAuthenticated && authProvider.currentUser != null) ...[
             buildSectionHeader('⭐ 나의 즐겨찾기', () => {}),
             StreamBuilder(
               stream: homeProvider.getMyFavoriteImages(authProvider.currentUser!.uid),

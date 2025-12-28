@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// 공통 AlertDialog(알림/확인 대화상자) 표시 함수
 ///
@@ -56,6 +57,56 @@ void showCommonAlertDialog({
           child: Text(positiveButtonText),
         ),
       ],
+    ),
+  );
+}
+
+/// 공통 이미지 선택 다이얼로그 표시 함수
+///
+/// [context] : 다이얼로그를 표시할 BuildContext
+/// [onImageSourceSelected] : 이미지 소스(갤러리 또는 카메라) 선택 시 호출할 콜백 함수
+///
+/// - 사용자에게 갤러리에서 선택 또는 카메라로 촬영 옵션을 제공
+/// - 선택된 ImageSource를 콜백 함수로 전달
+///
+/// 사용 예시:
+/// ```dart
+/// showImageSourceDialog(
+///   context: context,
+///   onImageSourceSelected: (ImageSource source) {
+///     _pickImage(source);
+///   },
+/// );
+/// ```
+void showImageSourceDialog({
+  required BuildContext context,
+  required Function(ImageSource source) onImageSourceSelected,
+}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: const Text('이미지 선택'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('갤러리에서 선택'),
+            onTap: () {
+              Navigator.pop(context);
+              onImageSourceSelected(ImageSource.gallery);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('카메라로 촬영'),
+            onTap: () {
+              Navigator.pop(context);
+              onImageSourceSelected(ImageSource.camera);
+            },
+          ),
+        ],
+      ),
     ),
   );
 }

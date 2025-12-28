@@ -27,7 +27,26 @@ class ImageDetailDialog extends StatelessWidget {
             // 이미지 표시
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(image.imageUrl, width: double.infinity, fit: BoxFit.cover),
+              child: SizedBox(
+                width: double.infinity,
+                height: 300,
+                child: Image.network(
+                  image.imageUrl,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Icon(Icons.error, size: 50, color: Colors.grey),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             // 설명 표시

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 import 'package:flutter_firestore_ex04/service/service_post.dart';
@@ -50,32 +51,11 @@ class _PostDetailPageState extends State<PostAddPage> {
   }
 
   void _showImageSourceDialog() {
-    showDialog(
+    showImageSourceDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('이미지 선택'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('갤러리에서 선택'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('카메라로 촬영'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-          ],
-        ),
-      ),
+      onImageSourceSelected: (ImageSource source) {
+        _pickImage(source);
+      },
     );
   }
 

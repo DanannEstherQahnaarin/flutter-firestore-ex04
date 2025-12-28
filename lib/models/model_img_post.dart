@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// [ImagePostModel] 클래스는 이미지 게시판의 게시글 데이터를 관리하는 모델 클래스입니다.
 ///
 /// - id: 게시글의 고유 ID(Firestore 문서 ID)
@@ -31,13 +32,22 @@ class ImagePostModel {
 
   factory ImagePostModel.fromDoc(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+
+    // createdAt 처리: null이거나 Timestamp가 아닌 경우 현재 시간 사용
+    DateTime createdAt;
+    if (data['createdAt'] != null && data['createdAt'] is Timestamp) {
+      createdAt = (data['createdAt'] as Timestamp).toDate();
+    } else {
+      createdAt = DateTime.now();
+    }
+
     return ImagePostModel(
       id: doc.id,
       imageUrl: data['imageUrl'] ?? '',
       description: data['description'] ?? '',
       writerId: data['writerId'] ?? '',
       favorites: List<String>.from(data['favorites'] ?? []),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: createdAt,
     );
   }
 }
