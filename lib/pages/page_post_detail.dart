@@ -1,15 +1,10 @@
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
-import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
 import 'package:flutter_firestore_ex04/models/model_post.dart';
+import 'package:flutter_firestore_ex04/pages/page_post_update.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 import 'package:flutter_firestore_ex04/service/service_post.dart';
-import 'package:flutter_firestore_ex04/service/service_validation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -22,81 +17,6 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class _PostDetailPageState extends State<PostDetailPage> {
-  bool _isEditing = false;
-  final formKey = GlobalKey<FormState>();
-  late TextEditingController txtTitleController;
-  late TextEditingController txtContentController;
-  late TextEditingController txtCommentController;
-  bool isAdminNotice = false;
-  XFile? _selectedImage;
-  Uint8List? _imageBytes;
-  String? _thumbnailUrl;
-
-  @override
-  void initState() {
-    super.initState();
-    txtTitleController = TextEditingController(text: widget.post.title);
-    txtContentController = TextEditingController(text: widget.post.content);
-    txtCommentController = TextEditingController();
-    isAdminNotice = widget.post.isNotice;
-    _thumbnailUrl = widget.post.thumbnailUrl;
-  }
-
-  @override
-  void dispose() {
-    txtTitleController.dispose();
-    txtContentController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: source);
-
-    if (image != null) {
-      // 웹 플랫폼에서는 바이트 데이터를 읽어서 저장
-      Uint8List? bytes;
-      if (kIsWeb) {
-        bytes = await image.readAsBytes();
-      }
-
-      setState(() {
-        _selectedImage = image;
-        _imageBytes = bytes;
-      });
-    }
-  }
-
-  void _showImageSourceDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('이미지 선택'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('갤러리에서 선택'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('카메라로 촬영'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   bool _canEdit() {
     final authProvider = context.read<AuthProvider>();
     return authProvider.isAdmin ||
@@ -106,12 +26,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
     final canEdit = _canEdit();
 
     return Scaffold(
-      appBar: buildCommonAppBar(context, _isEditing ? '게시글 수정' : '게시글 상세'),
-      body: _isEditing ? _buildEditView(authProvider) : _buildDetailView(isEdit: canEdit),
+      appBar: buildCommonAppBar(context, '게시글 상세'),
+      body: _buildDetailView(isEdit: canEdit),
     );
   }
 
@@ -119,6 +38,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     padding: const EdgeInsets.all(16.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.post.isNotice)
           Container(
@@ -158,19 +78,20 @@ class _PostDetailPageState extends State<PostDetailPage> {
           Image.network(widget.post.thumbnailUrl!, width: double.infinity, fit: BoxFit.cover),
           const SizedBox(height: 16),
         ],
-        Text(widget.post.content, style: const TextStyle(fontSize: 16)),
+        SizedBox(
+          height: 350,
+          width: MediaQuery.of(context).size.width,
+          child: SingleChildScrollView(
+            controller: ScrollController(),
+            child: Text(widget.post.content, style: const TextStyle(fontSize: 16)),
+          ),
+        ),
+
         const SizedBox(height: 20),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             if (isEdit) ...[
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isEditing = true;
-                  });
-                },
-                child: const Row(children: [Icon(Icons.edit), Text('Edit')]),
-              ),
               ElevatedButton(
                 onPressed: () {
                   // 원래 context를 저장 (dialog가 닫힌 후에도 사용하기 위해)
@@ -203,240 +124,75 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     },
                   );
                 },
-                child: const Row(children: [Icon(Icons.remove), Text('Delete')]),
+                child: const Row(
+                  children: [
+                    Icon(Icons.remove, color: Colors.red),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PostUpdatePage(post: widget.post)),
+                  ).then((_) {
+                    // 업데이트 페이지에서 돌아왔을 때 상태 새로고침
+                    setState(() {});
+                  });
+                },
+                child: const Row(children: [Icon(Icons.edit), Text('Edit')]),
               ),
             ] else
               const SizedBox.shrink(),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Member Join', // 상단 타이틀
-                      border: OutlineInputBorder(), // 테두리
-                      contentPadding: EdgeInsets.all(20), // 테두리와 내부 위젯 사이의 여백
-                    ),
-                    child: Form(
-                      child: Column(
-                        children: [
-                          const Icon(Icons.comment),
-                          commonFormText(
-                            controller: txtCommentController,
-                            labelText: 'Comment',
-                          ),
-                          IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  StreamBuilder(
-                    stream: null,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+            // Padding(
+            //   padding: const EdgeInsets.all(10),
+            //   child: Row(
+            //     mainAxisSize: MainAxisSize.min,
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       InputDecorator(
+            //         decoration: const InputDecoration(
+            //           labelText: 'Member Join', // 상단 타이틀
+            //           border: OutlineInputBorder(), // 테두리
+            //           contentPadding: EdgeInsets.all(20), // 테두리와 내부 위젯 사이의 여백
+            //         ),
+            //         child: Form(
+            //           child: Column(
+            //             children: [
+            //               const Icon(Icons.comment),
+            //               commonFormText(
+            //                 controller: txtCommentController,
+            //                 labelText: 'Comment',
+            //               ),
+            //               IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //       StreamBuilder(
+            //         stream: null,
+            //         builder: (context, snapshot) {
+            //           if (snapshot.connectionState == ConnectionState.waiting) {
+            //             return const Center(child: CircularProgressIndicator());
+            //           }
 
-                      final comments = snapshot.data;
+            //           final comments = snapshot.data;
 
-                      return ListView.separated(
-                        itemBuilder: (context, index) {
-
-                        },
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemCount: 0,
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            //           return ListView.separated(
+            //             itemBuilder: (context, index) {},
+            //             separatorBuilder: (context, index) => const Divider(),
+            //             itemCount: 1,
+            //           );
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ],
-    ),
-  );
-
-  Widget _buildEditView(AuthProvider authProvider) => Form(
-    key: formKey,
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          commonFormText(
-            controller: txtTitleController,
-            labelText: 'Title',
-            validator: (value) =>
-                ValidationService.validateRequired(value: value ?? '', fieldName: 'Title'),
-          ),
-          const SizedBox(height: 10),
-          const Divider(),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Text(
-                '작성일 : ${widget.post.createdAt.toString().substring(0, 19)} | 작성자 : ${widget.post.writerNickname}',
-              ),
-              if (authProvider.isAdmin)
-                Checkbox(
-                  value: isAdminNotice,
-                  onChanged: (value) {
-                    setState(() {
-                      isAdminNotice = value ?? false;
-                    });
-                  },
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Divider(),
-          const SizedBox(height: 10),
-          commonFormText(
-            controller: txtContentController,
-            labelText: 'Content',
-            maxLines: 10,
-            validator: (value) =>
-                ValidationService.validateRequired(value: value ?? '', fieldName: 'Content'),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(Icons.label_important),
-              const Text('thumbnail'),
-              const SizedBox(width: 20),
-              ElevatedButton.icon(
-                onPressed: _showImageSourceDialog,
-                icon: const Icon(Icons.add_photo_alternate),
-                label: const Text('이미지 선택'),
-              ),
-            ],
-          ),
-          if (_selectedImage != null) ...[
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: kIsWeb
-                    ? _imageBytes != null
-                          ? Image.memory(_imageBytes!, fit: BoxFit.cover)
-                          : const Center(child: CircularProgressIndicator())
-                    : Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
-              ),
-            ),
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _selectedImage = null;
-                      _imageBytes = null;
-                    });
-                  },
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  label: const Text('이미지 제거', style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            ),
-          ] else if (_thumbnailUrl != null) ...[
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(_thumbnailUrl!, fit: BoxFit.cover),
-              ),
-            ),
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _thumbnailUrl = null;
-                    });
-                  },
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  label: const Text('이미지 제거', style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  showCommonAlertDialog(
-                    context: context,
-                    title: 'Save',
-                    content: '저장장하시겠습니까?',
-                    onPositivePressed: () async {
-                      final result = await PostService().updatePost(
-                        context: context,
-                        post: PostModel(
-                          id: widget.post.id,
-                          title: txtTitleController.text,
-                          content: txtContentController.text,
-                          writerId: widget.post.writerId,
-                          writerNickname: widget.post.writerNickname,
-                          viewCount: widget.post.viewCount,
-                          isNotice: isAdminNotice,
-                          createdAt: widget.post.createdAt,
-                        ),
-                        formKey: formKey,
-                        isAdminNotice: isAdminNotice,
-                        selectedImage: _selectedImage,
-                      );
-
-                      if (!mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(result.message),
-                          backgroundColor: result.success ? Colors.green : Colors.red,
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: const Row(children: [Icon(Icons.save), Text('Save')]),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isEditing = false;
-                    // _buildEditView 초기화
-                    txtTitleController.text = widget.post.title;
-                    txtContentController.text = widget.post.content;
-                    isAdminNotice = widget.post.isNotice;
-                    _thumbnailUrl = widget.post.thumbnailUrl;
-                    _selectedImage = null;
-                    _imageBytes = null;
-                  });
-                },
-                child: const Row(children: [Icon(Icons.cancel), Text('Cancel')]),
-              ),
-            ],
-          ),
-        ],
-      ),
     ),
   );
 }

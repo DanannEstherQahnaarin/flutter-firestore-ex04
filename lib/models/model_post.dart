@@ -31,7 +31,7 @@ class PostModel {
   final String? thumbnailUrl;
 
   /// 조회수
-  final int viewCount;
+  final int? viewCount;
 
   /// 공지사항 여부
   final bool isNotice;
@@ -49,7 +49,7 @@ class PostModel {
     required this.writerId,
     required this.writerNickname,
     this.thumbnailUrl,
-    required this.viewCount,
+    this.viewCount,
     required this.isNotice,
     required this.createdAt,
   });

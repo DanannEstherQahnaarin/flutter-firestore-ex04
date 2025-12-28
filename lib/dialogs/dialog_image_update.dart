@@ -3,25 +3,33 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
+import 'package:flutter_firestore_ex04/models/model_img_post.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 import 'package:flutter_firestore_ex04/provider/provider_img_board.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-class ImageAddDialog extends StatefulWidget {
-  const ImageAddDialog({super.key});
+class ImageUpdateDialog extends StatefulWidget {
+  final ImagePostModel imagePost;
+  const ImageUpdateDialog({super.key, required this.imagePost});
 
   @override
-  State<ImageAddDialog> createState() => _ImageAddDialogState();
+  State<ImageUpdateDialog> createState() => _ImageUpdateDialogState();
 }
 
-class _ImageAddDialogState extends State<ImageAddDialog> {
+class _ImageUpdateDialogState extends State<ImageUpdateDialog> {
   final formKey = GlobalKey<FormState>();
   final txtDescriptionController = TextEditingController();
   XFile? _selectedImage;
   Uint8List? _imageBytes;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    txtDescriptionController.text = widget.imagePost.description;
+  }
 
   @override
   void dispose() {
@@ -91,16 +99,16 @@ class _ImageAddDialogState extends State<ImageAddDialog> {
     setState(() => _isLoading = true);
 
     try {
-      // 추가 모드
-      await imgProvider.uploadImagePost(
+      await imgProvider.updateImagePost(
+        postId: widget.imagePost.id,
+        description: txtDescriptionController.text.trim(),
         imageFile: _selectedImage != null && !kIsWeb ? File(_selectedImage!.path) : null,
         imageBytes: _selectedImage != null && kIsWeb ? _imageBytes : null,
-        description: txtDescriptionController.text.trim(),
         userId: currentUser.uid,
       );
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('이미지 게시글이 추가되었습니다.')));
+      ).showSnackBar(const SnackBar(content: Text('이미지 게시글이 수정되었습니다.')));
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -121,7 +129,7 @@ class _ImageAddDialogState extends State<ImageAddDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('이미지 추가'),
+      title: const Text('이미지 수정'),
       content: SingleChildScrollView(
         child: Form(
           key: formKey,
@@ -140,6 +148,16 @@ class _ImageAddDialogState extends State<ImageAddDialog> {
               ),
               const SizedBox(height: 16),
               // 이미지 선택/표시
+              if (_selectedImage == null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    widget.imagePost.imageUrl,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               if (_selectedImage != null) ...[
                 const SizedBox(height: 10),
                 Container(
@@ -163,7 +181,7 @@ class _ImageAddDialogState extends State<ImageAddDialog> {
               ElevatedButton.icon(
                 onPressed: _showImageSourceDialog,
                 icon: const Icon(Icons.add_photo_alternate),
-                label: Text(_selectedImage != null ? '이미지 변경' : '이미지 선택'),
+                label: Text(_selectedImage != null ? '이미지 변경' : '이미지 변경'),
               ),
             ],
           ),
@@ -182,7 +200,7 @@ class _ImageAddDialogState extends State<ImageAddDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('추가'),
+              : const Text('수정'),
         ),
       ],
     );

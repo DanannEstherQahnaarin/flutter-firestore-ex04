@@ -1,82 +1,84 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
-import 'package:flutter_firestore_ex04/service/service_sign.dart';
-import 'package:flutter_firestore_ex04/service/service_validation.dart';
+import 'package:flutter_firestore_ex04/models/model_img_post.dart';
+import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
+import 'package:flutter_firestore_ex04/provider/provider_img_board.dart';
+import 'package:flutter_firestore_ex04/dialogs/dialog_image_update.dart';
+import 'package:provider/provider.dart';
 
-class ImageDetailDialog extends StatefulWidget {
-  const ImageDetailDialog({super.key});
-
-  @override
-  State<ImageDetailDialog> createState() => _ImageDetailDialog();
-}
-
-class _ImageDetailDialog extends State<ImageDetailDialog> {
-  final txtEmailEditingController = TextEditingController();
-  final txtPasswordEditingController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+class ImageDetailDialog extends StatelessWidget {
+  final ImagePostModel image;
+  const ImageDetailDialog({super.key, required this.image});
 
   @override
-  void dispose() {
-    txtEmailEditingController.dispose();
-    txtPasswordEditingController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final imgProvider = context.read<ImageBoardProvider>();
+    final currentUserId = authProvider.currentUser?.uid;
+    final isFavorite = currentUserId != null && image.favorites.contains(currentUserId);
+    final canEdit = currentUserId != null && currentUserId == image.writerId;
 
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('로그인'),
-    content: SingleChildScrollView(
-      child: Form(
-        key: formKey,
+    return AlertDialog(
+      title: const Text('이미지 상세'),
+      content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            commonFormText(
-              controller: txtEmailEditingController,
-              labelText: '이메일',
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) => ValidationService.validateEmail(value: value ?? ''),
+            // 이미지 표시
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(image.imageUrl, width: double.infinity, fit: BoxFit.cover),
             ),
-            const SizedBox(height: 15),
-            commonFormText(
-              controller: txtPasswordEditingController,
-              labelText: '패스워드',
-              obscureText: true,
-              validator: (value) => ValidationService.validatePassword(value: value ?? ''),
+            const SizedBox(height: 16),
+            // 설명 표시
+            Text(
+              '설명',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(image.description, style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 16),
+            // 좋아요 수 표시
+            Row(
+              children: [
+                Icon(Icons.favorite, color: Colors.red, size: 20),
+                const SizedBox(width: 4),
+                Text(
+                  '${image.favorites.length}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ),
           ],
         ),
       ),
-    ),
-    actions: [
-      TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('취소')),
-      ElevatedButton(
-        onPressed: () async {
-          if (formKey.currentState?.validate() ?? false) {
-            final result = await SignService().signIn(
-              email: txtEmailEditingController.text,
-              password: txtPasswordEditingController.text,
-            );
-
-            if (!context.mounted) return;
-
-            if (result.success) {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('로그인되었습니다.')));
-            } else {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(result.message)));
-            }
-          }
-        },
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [Icon(Icons.person_pin), SizedBox(width: 8), Text('로그인')],
-        ),
-      ),
-    ],
-  );
+      actions: [
+        // 좋아요 토글 버튼
+        if (currentUserId != null)
+          IconButton(
+            icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.red),
+            onPressed: () {
+              imgProvider.toggleFavorite(image.id, currentUserId);
+            },
+            tooltip: isFavorite ? '좋아요 취소' : '좋아요',
+          ),
+        // 수정 버튼 (작성자만 표시)
+        if (canEdit)
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(context).pop(); // 현재 다이얼로그 닫기
+              showDialog(
+                context: context,
+                builder: (context) => ImageUpdateDialog(imagePost: image),
+              );
+            },
+            icon: const Icon(Icons.edit),
+            label: const Text('수정'),
+          ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('닫기')),
+      ],
+    );
+  }
 }

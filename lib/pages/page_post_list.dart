@@ -51,7 +51,9 @@ class PostListPage extends StatelessWidget {
                         fontWeight: item.isNotice ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
-                    subtitle: Text('${item.writerNickname} | 조회수 ${item.viewCount}'),
+                    subtitle: Text(
+                      '작성자 ${item.writerNickname} | 조회수 ${item.viewCount} | 작성일 ${item.createdAt}',
+                    ),
                     onTap: () {
                       boardProvider.incrementViewCount(item.id);
                       Navigator.push(

@@ -2,27 +2,42 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_firestore_ex04/common_widgets/common_appbar.dart';
+import 'package:flutter_firestore_ex04/common_widgets/common_dialog.dart';
 import 'package:flutter_firestore_ex04/common_widgets/common_form_text.dart';
+import 'package:flutter_firestore_ex04/models/model_post.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 import 'package:flutter_firestore_ex04/service/service_post.dart';
 import 'package:flutter_firestore_ex04/service/service_validation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-class PostAddPage extends StatefulWidget {
-  const PostAddPage({super.key});
+class PostUpdatePage extends StatefulWidget {
+  final PostModel post;
+
+  const PostUpdatePage({super.key, required this.post});
 
   @override
-  State<PostAddPage> createState() => _PostDetailPageState();
+  State<PostUpdatePage> createState() => _PostUpdatePageState();
 }
 
-class _PostDetailPageState extends State<PostAddPage> {
+class _PostUpdatePageState extends State<PostUpdatePage> {
   final formKey = GlobalKey<FormState>();
-  final txtTitleController = TextEditingController();
-  final txtContentController = TextEditingController();
+  late TextEditingController txtTitleController;
+  late TextEditingController txtContentController;
   bool isAdminNotice = false;
   XFile? _selectedImage;
   Uint8List? _imageBytes;
+  String? _thumbnailUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    txtTitleController = TextEditingController(text: widget.post.title);
+    txtContentController = TextEditingController(text: widget.post.content);
+    isAdminNotice = widget.post.isNotice;
+    _thumbnailUrl = widget.post.thumbnailUrl;
+  }
 
   @override
   void dispose() {
@@ -84,13 +99,7 @@ class _PostDetailPageState extends State<PostAddPage> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('게시글 작성'),
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 39, 39, 39),
-        foregroundColor: const Color.fromARGB(139, 252, 229, 229),
-        elevation: 2,
-      ),
+      appBar: buildCommonAppBar(context, '게시글 수정'),
       body: Form(
         key: formKey,
         child: SingleChildScrollView(
@@ -109,10 +118,8 @@ class _PostDetailPageState extends State<PostAddPage> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(
-                    child: Text(
-                      '작성일 : ${DateTime.now().toString().substring(0, 19)} | 작성자 : ${authProvider.currentUser?.nickName ?? '익명'}',
-                    ),
+                  Text(
+                    '작성일 : ${widget.post.createdAt.toString().substring(0, 19)} | 작성자 : ${widget.post.writerNickname}',
                   ),
                   if (authProvider.isAdmin)
                     Checkbox(
@@ -184,6 +191,35 @@ class _PostDetailPageState extends State<PostAddPage> {
                     ),
                   ],
                 ),
+              ] else if (_thumbnailUrl != null) ...[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(_thumbnailUrl!, fit: BoxFit.cover),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _thumbnailUrl = null;
+                        });
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      label: const Text('이미지 제거', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
               ],
               const SizedBox(height: 20),
               Row(
@@ -191,62 +227,57 @@ class _PostDetailPageState extends State<PostAddPage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.of(context).pop();
                     },
                     child: const Row(
                       children: [
                         Icon(Icons.cancel, color: Colors.red),
-                        SizedBox(width: 10),
                         Text('Cancel', style: TextStyle(color: Colors.red)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
-                    onPressed: () async {
-                      if (!formKey.currentState!.validate()) {
-                        return;
-                      }
-
-                      // 로딩 표시
-                      showDialog(
+                    onPressed: () {
+                      showCommonAlertDialog(
                         context: context,
-                        barrierDismissible: false,
-                        builder: (context) => const Center(child: CircularProgressIndicator()),
+                        title: 'Save',
+                        content: '저장하시겠습니까?',
+                        onPositivePressed: () async {
+                          final result = await PostService().updatePost(
+                            context: context,
+                            post: PostModel(
+                              id: widget.post.id,
+                              title: txtTitleController.text,
+                              content: txtContentController.text,
+                              writerId: widget.post.writerId,
+                              writerNickname: widget.post.writerNickname,
+                              isNotice: isAdminNotice,
+                              createdAt: widget.post.createdAt,
+                              viewCount: widget.post.viewCount,
+                              thumbnailUrl: _thumbnailUrl,
+                            ),
+                            formKey: formKey,
+                            isAdminNotice: isAdminNotice,
+                            selectedImage: _selectedImage,
+                          );
+
+                          if (!mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result.message),
+                              backgroundColor: result.success ? Colors.green : Colors.red,
+                            ),
+                          );
+
+                          if (result.success && mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
                       );
-
-                      final postService = PostService();
-                      final result = await postService.addPost(
-                        context: context,
-                        title: txtTitleController.text.trim(),
-                        contents: txtContentController.text.trim(),
-                        selectedImage: _selectedImage,
-                        isAdminNotice: isAdminNotice,
-                      );
-
-                      // 로딩 닫기
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
-
-                      // 결과 메시지 표시
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(result.message),
-                            backgroundColor: result.success ? Colors.green : Colors.red,
-                          ),
-                        );
-
-                        // 성공 시 페이지 닫기
-                        if (result.success) {
-                          Navigator.pop(context);
-                        }
-                      }
                     },
-                    child: const Row(
-                      children: [Icon(Icons.edit), SizedBox(width: 10), Text('Write')],
-                    ),
+                    child: const Row(children: [Icon(Icons.save), Text('Save')]),
                   ),
                 ],
               ),

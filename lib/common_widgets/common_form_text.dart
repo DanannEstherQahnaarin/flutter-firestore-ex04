@@ -40,7 +40,8 @@ TextFormField commonFormText({
   controller: controller,
   obscureText: obscureText,
   validator: validator,
-  keyboardType: keyboardType,
+  keyboardType: maxLines > 1 ? TextInputType.multiline : keyboardType,
+  textInputAction: maxLines > 1 ? TextInputAction.newline : TextInputAction.done,
   enabled: enabled,
   maxLines: maxLines,
   decoration:

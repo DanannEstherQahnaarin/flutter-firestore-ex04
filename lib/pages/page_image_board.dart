@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_firestore_ex04/dialogs/dialog_image_detail.dart';
 import 'package:flutter_firestore_ex04/models/model_img_post.dart';
 import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 import 'package:flutter_firestore_ex04/provider/provider_img_board.dart';
@@ -36,38 +37,46 @@ class _ImagePostListPageState extends State<ImagePostListPage> {
               final post = ImagePostModel.fromDoc(docs[index]);
               final isFav = post.favorites.contains(authProvider.currentUser?.uid);
 
-              return Card(
-                child: Column(
-                  children: [
-                    Expanded(child: Image.network(post.imageUrl, fit: BoxFit.cover)),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              post.description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+              return InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ImageDetailDialog(image: post),
+                  );
+                },
+                child: Card(
+                  child: Column(
+                    children: [
+                      Expanded(child: Image.network(post.imageUrl, fit: BoxFit.cover)),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                post.description,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              isFav ? Icons.favorite : Icons.favorite_border,
-                              color: Colors.red,
+                            GestureDetector(
+                              onTap: () {
+                                final userId = authProvider.currentUser?.uid;
+                                if (userId != null) {
+                                  imgProvider.toggleFavorite(post.id, userId);
+                                }
+                              },
+                              child: Icon(
+                                isFav ? Icons.favorite : Icons.favorite_border,
+                                color: Colors.red,
+                              ),
                             ),
-                            onPressed: () {
-                              final userId = authProvider.currentUser?.uid;
-                              if (userId != null) {
-                                imgProvider.toggleFavorite(post.id, userId);
-                              }
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
