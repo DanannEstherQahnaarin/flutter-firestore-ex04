@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 
 /// 공통 AppBar 위젯을 반환하는 함수.
 ///
@@ -14,7 +12,6 @@ import 'package:flutter_firestore_ex04/provider/provider_auth.dart';
 ///   - 로그아웃 상태면: 로그인 아이콘과 버튼 노출, 클릭 시 '/login'으로 이동.
 PreferredSizeWidget buildCommonAppBar(BuildContext context, String title) {
   // Provider를 통해 인증 상태(AuthProvider) 접근
-  final authProvider = context.watch<AuthProvider>();
 
   // 현재 route 확인
   final currentRoute = ModalRoute.of(context)?.settings.name;

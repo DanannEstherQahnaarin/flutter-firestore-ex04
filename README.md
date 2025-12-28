@@ -1,16 +1,233 @@
-# flutter_firestore_ex04
+# Flutter Firestore 커뮤니티 앱
 
-A new Flutter project.
+Flutter와 Firebase를 활용한 실시간 커뮤니티 애플리케이션입니다. 게시판 기능과 이미지 공유 기능을 제공하며, Firebase의 다양한 서비스를 활용하여 안정적이고 확장 가능한 구조로 설계되었습니다.
 
-## Getting Started
+## 1) 프로젝트 소개
 
-This project is a starting point for a Flutter application.
+이 프로젝트는 Flutter 프레임워크와 Firebase 백엔드 서비스를 기반으로 한 커뮤니티 플랫폼입니다. 사용자 인증, 텍스트 게시판, 이미지 게시판 등 다양한 기능을 제공하며, 실시간 데이터 동기화와 안전한 인증 방식을 구현합니다.
 
-A few resources to get you started if this is your first Flutter project:
+### 주요 특징
+- 🔐 Firebase Authentication을 통한 안전한 사용자 인증
+- 📝 실시간 텍스트 게시판 (CRUD 기능)
+- 📸 이미지 업로드 및 공유 게시판
+- ⭐ 즐겨찾기 기능
+- 🌓 다크/라이트 테마 지원
+- 📱 반응형 UI 디자인
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 2) 주요 기능
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 인증 시스템
+- 이메일/비밀번호 기반 회원가입 및 로그인
+- 사용자 프로필 관리
+- 역할 기반 권한 시스템 (user, admin)
+
+### 홈 페이지
+- 최근 게시글 5개 미리보기
+- 최신 이미지 5개 가로 스크롤 뷰
+- 로그인 사용자별 즐겨찾기 이미지 목록
+
+### 글 게시판
+- 게시글 작성, 조회, 수정, 삭제 (CRUD)
+- 공지사항 기능
+- 조회수 카운팅
+- 작성자 정보 표시
+
+### 이미지 게시판
+- 이미지 업로드 및 저장 (Firebase Storage)
+- 이미지 상세 보기
+- 이미지 수정 및 삭제
+- 좋아요(즐겨찾기) 기능
+- 이미지 설명 작성
+
+### 사용자 인터페이스
+- 다크/라이트 테마 전환
+- 하단 네비게이션 바
+- 사이드 드로어 메뉴
+- 공통 컴포넌트 재사용 (AppBar, Dialog 등)
+
+## 3) 기술 스택
+
+### 프론트엔드
+- **Flutter** (^3.10.1) - 크로스 플랫폼 UI 프레임워크
+- **Provider** (^6.1.5+1) - 상태 관리
+- **Material Design** - UI 디자인 시스템
+
+### 백엔드 (Firebase)
+- **Firebase Core** (^4.3.0) - Firebase 초기화 및 설정
+- **Cloud Firestore** (^6.1.1) - NoSQL 데이터베이스
+- **Firebase Authentication** (^6.1.3) - 사용자 인증
+- **Firebase Storage** (^13.0.5) - 이미지 파일 저장
+- **Cloud Functions** (^6.0.5) - 서버리스 백엔드 로직
+- **Firebase App Check** (^0.4.1+3) - 앱 보안 및 남용 방지
+
+### 유틸리티
+- **image_picker** (^1.2.1) - 이미지 선택 및 촬영
+- **intl** (^0.20.2) - 국제화 및 날짜 형식화
+- **logger** (^2.6.2) - 로깅
+- **http** (^1.2.2) - HTTP 요청
+- **path_provider** (^2.1.4) - 파일 시스템 경로 접근
+- **path** (^1.9.0) - 경로 조작 유틸리티
+
+## 4) 아키텍처
+
+프로젝트는 계층화된 아키텍처 패턴을 따릅니다:
+
+```
+lib/
+├── models/          # 데이터 모델
+│   ├── model_comment.dart
+│   ├── model_img_post.dart
+│   ├── model_post.dart
+│   └── model_user.dart
+├── provider/        # 상태 관리 (Provider 패턴)
+│   ├── provider_auth.dart
+│   ├── provider_board.dart
+│   ├── provider_comment.dart
+│   ├── provider_home.dart
+│   ├── provider_img_board.dart
+│   └── provider_theme.dart
+├── service/         # 비즈니스 로직 및 Firebase 서비스 레이어
+│   ├── service_auth.dart
+│   ├── service_cloud_functions.dart
+│   ├── service_file.dart
+│   ├── service_image.dart
+│   ├── service_post.dart
+│   ├── service_sign.dart
+│   └── service_validation.dart
+├── pages/           # 화면 (Page 위젯)
+│   ├── page_about.dart
+│   ├── page_home.dart
+│   ├── page_image_board.dart
+│   ├── page_post_add.dart
+│   ├── page_post_detail.dart
+│   ├── page_post_list.dart
+│   ├── page_post_update.dart
+│   └── page_user_list.dart
+├── dialogs/         # 다이얼로그 위젯
+│   ├── dialog_image_add.dart
+│   ├── dialog_image_detail.dart
+│   ├── dialog_image_update.dart
+│   ├── dialog_sign_in.dart
+│   └── dialog_sign_up.dart
+├── common_widgets/  # 재사용 가능한 공통 위젯
+│   ├── common_appbar.dart
+│   ├── common_dialog.dart
+│   ├── common_Drawer.dart
+│   ├── common_form_text.dart
+│   ├── common_listview.dart
+│   ├── common_navi.dart
+│   └── common_sec_header.dart
+└── screen/          # 전체 화면 레이아웃
+    └── main_navigation_screen.dart
+```
+
+### 아키텍처 패턴
+- **Provider 패턴**: 상태 관리 및 의존성 주입
+- **서비스 레이어**: Firebase와의 통신 및 비즈니스 로직 분리
+- **모델 레이어**: 데이터 구조 정의 및 변환 로직
+- **프레젠테이션 레이어**: UI 컴포넌트 및 페이지
+
+### 데이터 흐름
+1. **UI Layer** → Provider에 액션 요청
+2. **Provider** → Service 레이어 호출
+3. **Service** → Firebase API 호출
+4. **Firebase** → 데이터 반환
+5. **Provider** → 상태 업데이트 및 UI에 알림
+6. **UI Layer** → 새로운 상태 반영
+
+## 5) 보안/권한
+
+### 인증 보안
+- **Firebase Authentication**: 이메일/비밀번호 기반 안전한 인증
+- **Firebase App Check**: 
+  - Android: Play Integrity (프로덕션), Debug (개발)
+  - iOS/macOS: DeviceCheck (프로덕션), Debug (개발)
+  - 앱의 무단 사용 방지 및 API 보호
+
+### 권한 관리
+- **역할 기반 접근 제어 (RBAC)**: UserModel에 role 필드 포함 (user, admin)
+- **작성자 확인**: 게시글/이미지 수정/삭제 시 작성자 확인
+- **인증 상태 확인**: 보호된 기능 접근 시 인증 여부 확인
+
+### 데이터 보안
+- Firestore 보안 규칙 (Firebase Console에서 설정 필요)
+- Firebase Storage 보안 규칙
+- 사용자 데이터 격리 및 접근 제어
+
+## 6) 실행 방법
+
+### 사전 요구사항
+- Flutter SDK (^3.10.1)
+- Dart SDK
+- Firebase 프로젝트 설정 완료
+- Android Studio / Xcode (플랫폼별 빌드)
+
+### Firebase 설정
+1. Firebase Console에서 프로젝트 생성
+2. Android/iOS/Web 앱 등록
+3. `google-services.json` (Android) 및 설정 파일 다운로드
+4. `firebase_options.dart` 파일 생성 (`flutterfire configure`)
+
+### 설치 및 실행
+
+```bash
+# 의존성 설치
+flutter pub get
+
+# Firebase Functions 의존성 설치 (functions 폴더에서)
+cd functions
+npm install
+cd ..
+
+# 앱 실행 (디버그 모드)
+flutter run
+
+# 특정 플랫폼 실행
+flutter run -d chrome          # Web
+flutter run -d android         # Android
+flutter run -d ios             # iOS
+```
+
+### 환경 변수 및 설정
+- Firebase 설정은 `lib/firebase_options.dart`에 포함
+- Android: `android/app/google-services.json` 필요
+- iOS: Firebase 설정 파일 추가 필요
+
+## 7) 확장 방향
+
+### 기능 확장
+- [ ] 댓글 시스템 고도화 (대댓글, 좋아요 등)
+- [ ] 실시간 채팅 기능
+- [ ] 알림 시스템 (Push Notification)
+- [ ] 검색 및 필터링 기능
+- [ ] 페이징 및 무한 스크롤 최적화
+- [ ] 이미지 편집 기능 (크롭, 필터 등)
+- [ ] 사용자 프로필 페이지
+- [ ] 소셜 로그인 (Google, Apple 등)
+- [ ] 관리자 대시보드
+
+### 기술 개선
+- [ ] 상태 관리 개선 (Riverpod, Bloc 등 고려)
+- [ ] 오프라인 지원 강화
+- [ ] 이미지 캐싱 최적화
+- [ ] 성능 모니터링 (Firebase Performance)
+- [ ] 에러 추적 (Firebase Crashlytics)
+- [ ] 테스트 코드 작성 (Unit, Widget, Integration)
+- [ ] CI/CD 파이프라인 구축
+
+### 사용자 경험 개선
+- [ ] 다국어 지원 (i18n)
+- [ ] 접근성 (a11y) 개선
+- [ ] 애니메이션 및 전환 효과
+- [ ] 풀 투 리프레시 기능
+- [ ] 이미지 지연 로딩 (Lazy Loading)
+
+---
+
+## 라이선스
+
+이 프로젝트는 학습 목적으로 제작되었습니다.
+
+## 기여
+
+이슈 및 개선 사항은 언제든지 환영합니다.
